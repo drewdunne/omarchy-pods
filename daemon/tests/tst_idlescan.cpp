@@ -9,8 +9,9 @@ class TestIdleScan : public QObject
     Q_OBJECT
 
 private slots:
-    void defaultsToOn();
+    void defaultsToOff();
     void offWhenSetFalse();
+    void onWhenSetTrue();
 };
 
 static QString settingsPath(const QTemporaryDir &dir)
@@ -18,12 +19,12 @@ static QString settingsPath(const QTemporaryDir &dir)
     return dir.filePath("AirPodsTrayApp.conf");
 }
 
-void TestIdleScan::defaultsToOn()
+void TestIdleScan::defaultsToOff()
 {
     QTemporaryDir dir;
     QSettings settings(settingsPath(dir), QSettings::IniFormat);
 
-    QVERIFY(idleScanEnabled(settings));
+    QVERIFY(!idleScanEnabled(settings));
 }
 
 void TestIdleScan::offWhenSetFalse()
@@ -36,6 +37,18 @@ void TestIdleScan::offWhenSetFalse()
     QSettings settings(settingsPath(dir), QSettings::IniFormat);
 
     QVERIFY(!idleScanEnabled(settings));
+}
+
+void TestIdleScan::onWhenSetTrue()
+{
+    QTemporaryDir dir;
+    {
+        QSettings written(settingsPath(dir), QSettings::IniFormat);
+        written.setValue("bluetooth/idleScan", true);
+    }
+    QSettings settings(settingsPath(dir), QSettings::IniFormat);
+
+    QVERIFY(idleScanEnabled(settings));
 }
 
 QTEST_GUILESS_MAIN(TestIdleScan)
